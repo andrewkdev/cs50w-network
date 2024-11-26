@@ -1,0 +1,135 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    {% if user.is_authenticated %}
+        <div class="new-post-form my-3 mx-3">
+            <form action="{% url 'create_post' %}" method="POST">
+                {% csrf_token %}
+                <textarea name="content" rows="3" placeholder="What's on your mind?" class="form-control"></textarea>
+                <button type="submit" class="btn btn-primary mt-2">Post</button>
+            </form>
+            <hr>
+        </div>
+    {% endif %}
+
+    <h2 class="my-3 mx-3">All Posts</h2>
+
+    <div class="posts my-3 mx-3">
+        {% for post in page_obj %}
+            <div class="post card mb-3" id="post-{{ post.id }}">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'profile' post.user.username %}">@{{ post.user.username }}</a>
+                    </h5>
+
+                    <p class="card-text" id="content-{{ post.id }}">{{ post.content }}</p>
+                    <textarea id="edit-textarea-{{ post.id }}" class="form-control" style="display: none;"></textarea>
+
+                    <p class="card-text"><small class="text-muted">{{ post.timestamp }}</small></p>
+                    <p class="card-text"><small class="text-muted" id="like-count-{{ post.id }}">{{ post.likes.count }} Likes</small></p>
+
+                    <button class="btn btn-link" id="like-button-{{ post.id }}" onclick="toggleLike({{ post.id }})">
+                        {% if user in post.likes.all %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button>
+
+                    {% if post.user == user %}
+                        <button class="btn btn-secondary btn-sm" onclick="editPost({{ post.id }})">Edit</button>
+                        <button class="btn btn-primary btn-sm" id="save-button-{{ post.id }}" onclick="savePost({{ post.id }})" style="display: none;">Save</button>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>No posts yet.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mx-auto my-3" style="width: 200px">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+    <script>
+        function toggleLike(postId) {
+            fetch(`/like_post/${postId}`, {
+                method: 'POST',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked) {
+                    document.getElementById(`like-button-${postId}`).innerText = "Unlike";
+                } else {
+                    document.getElementById(`like-button-${postId}`).innerText = "Like";
+                }
+                document.getElementById(`like-count-${postId}`).innerText = `${data.like_count} Likes`;
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function editPost(postId) {
+            document.getElementById(`content-${postId}`).style.display = 'none';
+            document.getElementById(`edit-textarea-${postId}`).style.display = 'block';
+            document.getElementById(`save-button-${postId}`).style.display = 'inline-block';
+
+            document.getElementById(`edit-textarea-${postId}`).value = document.getElementById(`content-${postId}`).innerText;
+        }
+
+        function savePost(postId) {
+            const newContent = document.getElementById(`edit-textarea-${postId}`).value;
+
+            fetch(`/edit_post/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: newContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById(`content-${postId}`).innerText = newContent;
+                    
+                    document.getElementById(`content-${postId}`).style.display = 'block';
+                    document.getElementById(`edit-textarea-${postId}`).style.display = 'none';
+                    document.getElementById(`save-button-${postId}`).style.display = 'none';
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            });
+        }
+    </script>
+{% endblock %}

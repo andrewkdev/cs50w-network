@@ -1,0 +1,38 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2 class="my-3 mx-3">Following</h2>
+
+    <div class="posts my-3 mx-3">
+        {% for post in page_obj %}
+            <div class="post card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@{{ post.user.username }}</h5>
+                    <p class="card-text">{{ post.content }}</p>
+                    <p class="card-text"><small class="text-muted">{{ post.timestamp }}</small></p>
+                    <p class="card-text"><small class="text-muted">{{ post.likes.count }} Likes</small></p>
+                </div>
+            </div>
+        {% empty %}
+            <p>You are not following any users or they haven’t made any posts yet.</p>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mx-auto my-3" style="width: 200px">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
