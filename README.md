@@ -1,7 +1,7 @@
 # Network - Social Network Project
 
 ## Overview
-**Network** is a Twitter-like social network web application that allows users to create posts, follow other users, like/unlike posts, and edit their own posts. This project was developed as part of the CS50w course on web programming with Python and JavaScript.
+**Network** is a Twitter-like social network web application that allows users to create posts, follow other users, like/unlike posts, and edit their own posts. This project was developed as part of the Harvard CS50w course on web programming with Python and JavaScript.
 
 ## Features
 - **User Authentication**: Users can register, log in, and log out securely.
