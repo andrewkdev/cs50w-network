@@ -1,7 +1,7 @@
 # Network - Social Network Project
 
 ## Overview
-**Network** is a Twitter-like social network web application that allows users to create posts, follow other users, like/unlike posts, and edit their own posts. This project was developed as part of the CS50W course on web programming with Python and JavaScript.
+**Network** is a Twitter-like social network web application that allows users to create posts, follow other users, like/unlike posts, and edit their own posts. This project was developed as part of the CS50w course on web programming with Python and JavaScript.
 
 ## Features
 - **User Authentication**: Users can register, log in, and log out securely.
@@ -23,7 +23,7 @@
 ## Installation
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/andrewkdev/network.git
+   git clone https://github.com/andrewkdev/cs50w-network.git
    cd network
    ```
 2. **Set up a virtual environment**:
